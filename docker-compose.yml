@@ -1,0 +1,19 @@
+version: "3.9"
+services:
+    rabbitmq:
+        image: rabbitmq:3
+
+    producer:
+        build: ./producer
+        depends_on:
+            - rabbitmq
+        volumes:
+            - ./producer:/opt/producer
+
+    consumer:
+        build: ./consumer
+        depends_on:
+            - rabbitmq
+            - producer
+        volumes:
+            - ./consumer:/opt/consumer
