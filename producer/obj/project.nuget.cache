@@ -1,0 +1,12 @@
+{
+  "version": 2,
+  "dgSpecHash": "3UXB+ZIsePllKnB7r+E4tl1KAJcybk7GvhmuLqEsU/kkhrqb5dUnegsE+UKYLGXB+kmxlV7ATuWKFhmw/lA0dg==",
+  "success": true,
+  "projectFilePath": "/home/pps/Projects/ProducerConsuer/producer/producer.csproj",
+  "expectedPackageFiles": [
+    "/home/pps/.nuget/packages/rabbitmq.client/6.2.1/rabbitmq.client.6.2.1.nupkg.sha512",
+    "/home/pps/.nuget/packages/system.memory/4.5.4/system.memory.4.5.4.nupkg.sha512",
+    "/home/pps/.nuget/packages/system.threading.channels/4.7.1/system.threading.channels.4.7.1.nupkg.sha512"
+  ],
+  "logs": []
+}
