@@ -17,3 +17,5 @@ services:
             - producer
         volumes:
             - ./consumer:/opt/consumer
+    syslog:
+        image: balabit/syslog-ng
