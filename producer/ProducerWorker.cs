@@ -11,6 +11,9 @@ namespace producer
 {
     class ProducerWorker : BackgroundService
     {
+        private const string BROKER = "rabbitmq";
+        private const int PORT = 5672;
+        private const string QUEUE = "task_queue";
         ILogger<ProducerWorker> _logger;
         public ProducerWorker(ILogger<ProducerWorker> logger)
         {
@@ -19,41 +22,38 @@ namespace producer
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            await Task.Run(() =>
+            await Task.Run(async () =>
             {
-                String hostname = "rabbitmq"; //discoverable hostname inside the docker container
-                
-                this._logger.LogInformation("Host: {0}", hostname);
+                this._logger.LogInformation("Broker: {0}:{1} using Queue: {2}", BROKER, PORT, QUEUE);
 
-                var factory = new ConnectionFactory() { HostName = hostname, Port = 5672 };
+                var factory = new ConnectionFactory() { HostName = BROKER, Port = PORT };
                 using (var connection = factory.CreateConnection())
                 {
                     using (var channel = connection.CreateModel())
                     {
-                        channel.QueueDeclare(queue: "task_queue",
+                        channel.QueueDeclare(queue: QUEUE,
                                             durable: true,
                                             exclusive: false,
                                             autoDelete: false,
                                             arguments: null);
 
-                        string message = "Hello World!";
-                        var body = Encoding.UTF8.GetBytes(message);
+                        
+                        while(true) {
 
-                        var properties = channel.CreateBasicProperties();
-                        properties.Persistent = true;
-                        properties.Timestamp = new AmqpTimestamp(DateTime.UtcNow.Ticks); //use absolute time
-                        properties.ContentEncoding = Encoding.UTF8.BodyName;
+                            var properties = channel.CreateBasicProperties();
+                            properties.Persistent = true;
+                            properties.Timestamp = new AmqpTimestamp(DateTime.UtcNow.Ticks); //use absolute time
+                            properties.ContentEncoding = Encoding.UTF8.BodyName;
 
+                            channel.BasicPublish(exchange: "",
+                                                routingKey: "hello",
+                                                basicProperties: properties,
+                                                body: Encoding.UTF8.GetBytes("Hello World!"));
 
-                        channel.BasicPublish(exchange: "",
-                                            routingKey: "hello",
-                                            basicProperties: properties,
-                                            body: body);
-                        Console.WriteLine(" [x] Sent {0}", message);
+                            this._logger.LogInformation("Message sent @ {0}", properties.Timestamp.ToString());
+                            await Task.Delay(500);
+                        }
                     }
-
-                    Console.WriteLine(" Press [enter] to exit.");
-                    Console.ReadLine();
                 }
             });
         }
