@@ -1,7 +1,7 @@
 version: "3.9"
 services:
     rabbitmq:
-        image: rabbitmq:3
+        build: ./rabbitmq
 
     syslog:
         image: balabit/syslog-ng
@@ -16,7 +16,9 @@ services:
             - ./producer:/opt/producer
 
     consumer:
-        build: ./consumer
+        build:
+            context: .
+            dockerfile: ./consumer/Dockerfile
         depends_on:
             - rabbitmq
             - producer

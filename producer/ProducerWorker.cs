@@ -1,7 +1,6 @@
 using System;
 using System.Text;
 using RabbitMQ.Client;
-AmqpTimestamp
 
 using System.Threading;
 using System.Threading.Tasks;

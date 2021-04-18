@@ -37,6 +37,7 @@ namespace consumer
 
                         var consumer = new EventingBasicConsumer(channel);
 
+                        //message received callback
                         consumer.Received += (model, ea) =>
                         {
                             var body = ea.Body.ToArray();
@@ -48,7 +49,7 @@ namespace consumer
                         };
 
 
-                        channel.BasicConsume(queue: "hello",
+                        channel.BasicConsume(queue: "task_queue",
                                             autoAck: false, // do not remove the message from the broker before we have processed it.
                                             consumer: consumer);
 
