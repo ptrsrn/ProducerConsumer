@@ -1,49 +1,31 @@
-﻿using RabbitMQ.Client;
-using RabbitMQ.Client.Events;
-using System;
-using System.Text;
+﻿using System;
+using System.Threading.Tasks;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.DependencyInjection;
+using SyslogLogger;
 
 namespace consumer
 {
+
     class Program
     {
-        static void Main(string[] args)
-        {
-            String hostname = "rabbitmq"; //discoverable hostname inside the docker container
+        private const string  HOSTNAME = "syslog";
+        private const int PORT = 514;
 
-            Console.Out.WriteLine("Host: " + hostname );
-            var factory = new ConnectionFactory() { HostName = hostname, Port = 5672 };
-            using(var connection = factory.CreateConnection())
-            {
-                using(var channel = connection.CreateModel())
+        static Task Main(string[] args) =>
+        CreateHostBuilder(args).Build().RunAsync();
+
+        static IHostBuilder CreateHostBuilder(string[] args) =>
+            Host.CreateDefaultBuilder(args)
+                .ConfigureLogging(builder =>
                 {
-                    channel.QueueDeclare(queue: "task_queue",
-                                        durable: true,
-                                        exclusive: false,
-                                        autoDelete: false,
-                                        arguments: null);
-
-                    var consumer = new EventingBasicConsumer(channel);
-
-                    consumer.Received += (model, ea) =>
-                    {
-                        var body = ea.Body.ToArray();
-                        var message = Encoding.UTF8.GetString(body);
-                        Console.WriteLine(" [x] Received {0}", message);
-                        
-
-                        channel.BasicAck(deliveryTag: ea.DeliveryTag, multiple: false);
-                    };
-
-
-                    channel.BasicConsume(queue: "hello",
-                                        autoAck: false, // do not remove the message from the broker before we have processed it.
-                                        consumer: consumer);
-
-                    Console.WriteLine(" Press [enter] to exit.");
-                    Console.ReadLine();
-                }
-            }
-        }
+                    builder.ClearProviders()
+                    .AddSyslog(HOSTNAME, PORT);
+                })
+                .ConfigureServices((_, services) => {
+                    services.AddHostedService<ConsumerWorker>();}
+                );
     }
 }
+

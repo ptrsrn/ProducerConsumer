@@ -3,8 +3,13 @@ services:
     rabbitmq:
         image: rabbitmq:3
 
+    syslog:
+        image: balabit/syslog-ng
+
     producer:
-        build: ./producer
+        build:
+            context: .
+            dockerfile: ./producer/Dockerfile
         depends_on:
             - rabbitmq
         volumes:
@@ -17,5 +22,4 @@ services:
             - producer
         volumes:
             - ./consumer:/opt/consumer
-    syslog:
-        image: balabit/syslog-ng
+
