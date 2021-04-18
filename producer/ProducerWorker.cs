@@ -1,6 +1,7 @@
 using System;
 using System.Text;
 using RabbitMQ.Client;
+AmqpTimestamp
 
 using System.Threading;
 using System.Threading.Tasks;
@@ -41,6 +42,9 @@ namespace producer
 
                         var properties = channel.CreateBasicProperties();
                         properties.Persistent = true;
+                        properties.Timestamp = new AmqpTimestamp(DateTime.UtcNow.Ticks); //use absolute time
+                        properties.ContentEncoding = Encoding.UTF8.BodyName;
+
 
                         channel.BasicPublish(exchange: "",
                                             routingKey: "hello",
