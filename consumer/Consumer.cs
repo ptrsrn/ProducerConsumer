@@ -4,6 +4,9 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.DependencyInjection;
 using SyslogLogger;
+using Entityframework;
+using Microsoft.EntityFrameworkCore;
+using Pomelo.EntityFrameworkCore.MySql.Infrastructure;
 
 namespace consumer
 {
@@ -23,9 +26,23 @@ namespace consumer
                     builder.ClearProviders()
                     .AddSyslog(HOSTNAME, PORT);
                 })
-                .ConfigureServices((_, services) => {
-                    services.AddHostedService<ConsumerWorker>();}
-                );
+                .ConfigureServices((_, services) =>
+                {
+                    services.AddDbContextPool<MessagingContext>(
+                        dbContextOptions => { dbContextOptions
+                            .UseMySql(
+                                // Replace with your connection string.
+                                "server=sqlserver;user=user;password=password;Database=ef",
+                                // Replace with your server version and type.
+                                // For common usages, see pull request #1233.
+                                new MySqlServerVersion(new Version(8, 0, 21)), // use MariaDbServerVersion for MariaDB
+                                mySqlOptions => mySqlOptions.CharSetBehavior(CharSetBehavior.NeverAppend)
+                            );
+                        }
+                    );
+                    services.AddHostedService<ConsumerWorker>();
+                    services.AddTransient(typeof(IRepository<>), typeof(Repository<>));
+                });
     }
 }
 
