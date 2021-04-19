@@ -28,8 +28,9 @@ namespace consumer
                 })
                 .ConfigureServices((_, services) =>
                 {
-                    services.AddDbContextPool<MessagingContext>(
-                        dbContextOptions => { dbContextOptions
+                    services.AddDbContext<MessagingContext>(
+                        dbContextOptions => {
+                            dbContextOptions
                             .UseMySql(
                                 // Replace with your connection string.
                                 "server=sqlserver;user=user;password=password;Database=ef",
@@ -38,7 +39,9 @@ namespace consumer
                                 new MySqlServerVersion(new Version(8, 0, 21)), // use MariaDbServerVersion for MariaDB
                                 mySqlOptions => mySqlOptions.CharSetBehavior(CharSetBehavior.NeverAppend)
                             );
-                        }
+                        },
+                        ServiceLifetime.Transient,
+                        ServiceLifetime.Transient
                     );
                     services.AddHostedService<ConsumerWorker>();
                     services.AddTransient(typeof(IRepository<>), typeof(Repository<>));

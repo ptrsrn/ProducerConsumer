@@ -16,7 +16,7 @@ namespace consumer
 
     interface IRepository<TEntity> where TEntity: class, new()
     {   
-        Task<TEntity> Add(TEntity entity);
+        TEntity Add(TEntity entity);
     }
 
     class Repository<TEntry> : IRepository<TEntry> where TEntry: class, new()
@@ -28,7 +28,7 @@ namespace consumer
             this.context = context;
         }
 
-        public async Task<TEntry> Add(TEntry entity)
+        public TEntry Add(TEntry entity)
         {
             if (entity == null)
             {
@@ -37,8 +37,9 @@ namespace consumer
 
             try
             {
-                await this.context.AddAsync(entity);
-                await this.context.SaveChangesAsync();
+
+                this.context.Add(entity);
+                this.context.SaveChanges();
                 return entity;
             }
             catch (Exception ex)
