@@ -1,4 +1,4 @@
-FROM rabbitmq:3
+FROM rabbitmq:3-management
 RUN echo 'loopback_users.guest = false' >> /etc/rabbitmq/rabbitmq.conf 
 RUN echo 'listeners.tcp.default = 5672' >> /etc/rabbitmq/rabbitmq.conf
 RUN echo 'management.tcp.port = 15672' >> /etc/rabbitmq/rabbitmq.conf

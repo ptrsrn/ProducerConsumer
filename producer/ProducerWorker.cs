@@ -42,11 +42,10 @@ namespace producer
 
                             var properties = channel.CreateBasicProperties();
                             properties.Persistent = true;
-                            properties.Timestamp = new AmqpTimestamp(DateTime.UtcNow.Ticks); //use absolute time
-                            properties.ContentEncoding = Encoding.UTF8.BodyName;
+                            properties.Timestamp = new AmqpTimestamp(DateTime.UtcNow.Ticks);
 
                             channel.BasicPublish(exchange: "",
-                                                routingKey: "hello",
+                                                routingKey: QUEUE,
                                                 basicProperties: properties,
                                                 body: Encoding.UTF8.GetBytes("Hello World!"));
 

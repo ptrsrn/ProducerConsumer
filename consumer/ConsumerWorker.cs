@@ -11,7 +11,12 @@ using RabbitMQ.Client.Events;
 
 namespace consumer
 {
-    class ConsumerWorker : BackgroundService {
+    class ConsumerWorker : BackgroundService
+    {
+        /* not DRY*/
+        private const string BROKER = "rabbitmq";
+        private const int PORT = 5672;
+        private const string QUEUE = "task_queue";
         ILogger<ConsumerWorker> _logger;
         public ConsumerWorker(ILogger<ConsumerWorker> logger)
         {
@@ -21,15 +26,13 @@ namespace consumer
         {
             await Task.Run(() => 
             {
-                String hostname = "rabbitmq"; //discoverable hostname inside the docker container
-
-                Console.Out.WriteLine("Host: " + hostname );
-                var factory = new ConnectionFactory() { HostName = hostname, Port = 5672 };
+                this._logger.LogInformation("Broker: {0}:{1} using Queue: {2}", BROKER, PORT, QUEUE);
+                var factory = new ConnectionFactory() { HostName = BROKER, Port = PORT };
                 using(var connection = factory.CreateConnection())
                 {
                     using(var channel = connection.CreateModel())
                     {
-                        channel.QueueDeclare(queue: "task_queue",
+                        channel.QueueDeclare(queue: QUEUE,
                                             durable: true,
                                             exclusive: false,
                                             autoDelete: false,
@@ -40,21 +43,17 @@ namespace consumer
                         //message received callback
                         consumer.Received += (model, ea) =>
                         {
-                            var body = ea.Body.ToArray();
-                            var message = Encoding.UTF8.GetString(body);
-                            Console.WriteLine(" [x] Received {0}", message);
-                            
-
+                            this._logger.LogInformation("Message received: {0} sendt @ {1}", ea.DeliveryTag, ea.BasicProperties.Timestamp.ToString());
                             channel.BasicAck(deliveryTag: ea.DeliveryTag, multiple: false);
                         };
 
+                        
+                        while(true) {
+                            channel.BasicConsume(queue: QUEUE,
+                            autoAck: false, // do not remove the message from the broker before we have processed it.
+                            consumer: consumer);
+                        }
 
-                        channel.BasicConsume(queue: "task_queue",
-                                            autoAck: false, // do not remove the message from the broker before we have processed it.
-                                            consumer: consumer);
-
-                        Console.WriteLine(" Press [enter] to exit.");
-                        Console.ReadLine();
                     }
                 }
             });

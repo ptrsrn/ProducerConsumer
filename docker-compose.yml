@@ -2,6 +2,8 @@ version: "3.9"
 services:
     rabbitmq:
         build: ./rabbitmq
+        ports:
+            - 15672:15672
 
     syslog:
         image: balabit/syslog-ng
