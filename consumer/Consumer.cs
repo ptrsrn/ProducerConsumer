@@ -45,6 +45,7 @@ namespace consumer
                     );
                     services.AddHostedService<ConsumerWorker>();
                     services.AddTransient(typeof(IRepository<>), typeof(Repository<>));
+                    services.AddScoped<IMessageQueue, MessageQueue>();
                 });
     }
 }
