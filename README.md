@@ -15,19 +15,11 @@ Then the remaining containers can be started
 docker-compose up -d
 ```
 
-For now the `Producer` and the `Consumer` containers are both started with `sleep infinity`. This make sure that PID 1 does not terminate and the container keeps running.
+multiple containers of the service can be started as follows
 
-Start the producer
 ```
-docker exec <producer_container_id> dotnet run
+docker-compose up -d --scale <service>=<desired count>
 ```
-
-Start the consumer
-```
-docker exec <producer_container_id> dotnet run
-```
-
-For a production setup both should be configured to startthe compiled binary. (using `CMD` in the Dockerfiles) 
 
 
 # monitor
