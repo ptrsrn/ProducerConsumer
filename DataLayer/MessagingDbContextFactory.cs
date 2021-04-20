@@ -4,20 +4,10 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Design;
 using Pomelo.EntityFrameworkCore.MySql.Infrastructure;
 
-namespace Entityframework
+namespace DataLayer
 {
-    public class MessagingContext : DbContext
-    {
-        public MessagingContext(DbContextOptions<MessagingContext> options) : base(options)
-        {
-        }
-
-        public DbSet<Message> Messages { get; set; }
-            
-    }
-
     ///<summary> migration context <summary>
-    public class YourDbContextFactory : IDesignTimeDbContextFactory<MessagingContext>
+    public class MessagingDbContextFactory : IDesignTimeDbContextFactory<MessagingContext>
     {
         public MessagingContext CreateDbContext(string[] args)
         {
@@ -38,13 +28,5 @@ namespace Entityframework
                     .EnableDetailedErrors();
             return new MessagingContext(optionsBuilder.Options);
         }
-    }
-
-    public class Message
-    {
-        public int MessageId { get; set; }
-        public DateTime Sent { get; set; }
-        public DateTime Received {get; set; }
-        public string DeliveryTag {get; set; }
     }
 }

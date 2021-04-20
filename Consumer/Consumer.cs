@@ -1,16 +1,20 @@
 ﻿using System;
 using System.Threading.Tasks;
+
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.DependencyInjection;
-using SyslogLogger;
-using Entityframework;
-using Microsoft.EntityFrameworkCore;
+
 using Pomelo.EntityFrameworkCore.MySql.Infrastructure;
 
-namespace consumer
-{
+using SyslogLogger;
+using DataLayer;
+using TransportLayer;
 
+
+namespace Consumer
+{
     class Program
     {
         private const string  HOSTNAME = "syslog";
