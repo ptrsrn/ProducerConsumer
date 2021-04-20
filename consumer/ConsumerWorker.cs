@@ -54,10 +54,12 @@ namespace consumer
     {
         private readonly consumer.IRepository<Message> repository;
         private readonly consumer.IMessageQueue queue;
+        private readonly IShouldStoreStrategy storeStrategy;
         ILogger<ConsumerWorker> _logger;
-        public ConsumerWorker(IMessageQueue queue, IRepository<Message> repository, ILogger<ConsumerWorker> logger)
+        public ConsumerWorker(IMessageQueue queue, IShouldStoreStrategy storeStrategy, IRepository<Message> repository, ILogger<ConsumerWorker> logger)
         {
             this.queue = queue;
+            this.storeStrategy = storeStrategy;
             this.repository = repository;
             this._logger = logger;
         }
@@ -67,7 +69,7 @@ namespace consumer
             {
                 foreach (var message in queue.GetMessages())
                 {
-                    if (message.Received.Ticks%2 == 0) {
+                    if (this.storeStrategy.ShouldStore(message)) {
                         this._logger.LogInformation("Message {0}  satisfy condition", message.DeliveryTag);
                         this.repository.Add(message);
                     }
@@ -83,7 +85,18 @@ namespace consumer
         }
     }
 
+    interface IShouldStoreStrategy
+    {
+        Boolean ShouldStore(Message message);
+    }
 
+    class SecondsEvenShouldStoreStrategy : IShouldStoreStrategy
+    {
+        public Boolean ShouldStore(Message message)
+        {
+            return message.Sent.Second % 2 == 0;
+        }
+    }
 
     interface IMessageQueue
     {
