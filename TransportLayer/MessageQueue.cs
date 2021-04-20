@@ -41,18 +41,22 @@ namespace TransportLayer
 
         public void Publish(Message message)
         {
+            message.Sent = DateTime.UtcNow;
+
             var properties = channel.CreateBasicProperties();
             properties.Persistent = true;
-            properties.Timestamp = new AmqpTimestamp(DateTime.UtcNow.Ticks);
+            properties.Timestamp = new AmqpTimestamp(message.Sent.Ticks);
 
             channel.BasicPublish(exchange: "",
                                 routingKey: QUEUE,
                                 basicProperties: properties,
                                 body: Encoding.UTF8.GetBytes("Hello World!"));
+            this.logger.LogInformation("Message sent @ {0}", message.Sent);
         }
 
         public void Remove(Message message){
             channel.BasicAck(deliveryTag:  Convert.ToUInt64(message.DeliveryTag), multiple: false);
+            this.logger.LogInformation("Message {0} removed @ {1}", message.DeliveryTag, message.Received);
         }
 
         public IEnumerable<Message> GetMessages() {
