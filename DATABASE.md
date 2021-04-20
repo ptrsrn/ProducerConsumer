@@ -1,9 +1,17 @@
-# Create user
+# Create database ser
 
 After `docker-compose up -d` we need to create a user that will allow use to connect from other docker containers, e.g. from our consumer
 
+To get the root password from the newly created mysql container 
+
 ```
-docker exec -it <mysql_container_id> exec
+docker logs  <mysql_container_id> 2>&1 | grep GENERATED
+```
+
+then
+
+```
+docker exec -it <mysql_container_id> bash
 ```
  
 then
@@ -12,11 +20,9 @@ then
 mysql -u root - p
 ```
 
-when prompted for password enter the root password set in docker compose
+when prompted for password enter the root password 
 
-## create the new user
-
-form the mysql prompt execute the following
+From the mysql prompt execute the following
 
 ```
     CREATE USER 'user'@'localhost' IDENTIFIED BY 'password';
@@ -27,3 +33,31 @@ form the mysql prompt execute the following
 ```
 
 after this we can connect with the user `user` having password `password`
+
+## Reset root password
+
+```
+ALTER USER 'root'@'localhost' IDENTIFIED BY 'password';
+```
+
+# Migrations
+
+Before the database can be initialized we nned to install the `ef` tool
+
+```
+dotnet tool install --global dotnet-ef
+```
+
+Make sure the the `ef` tool is in the PATH
+
+```
+export PATH=$PATH:~/.dotnet/tools
+```
+
+Next migrate the database
+
+```
+cd DataLayer
+dotnet ef database update
+```
+
