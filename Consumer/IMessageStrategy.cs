@@ -3,8 +3,9 @@ using Models;
 
 namespace Consumer
 {
-    interface IShouldStoreStrategy
+    interface IMessageStrategy
     {
+        Boolean ShouldProcess(Message message);
         Boolean ShouldStore(Message message);
     }
 

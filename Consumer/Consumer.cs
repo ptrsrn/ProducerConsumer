@@ -50,7 +50,8 @@ namespace Consumer
                     services.AddHostedService<ConsumerWorker>();
                     services.AddTransient(typeof(IRepository<>), typeof(Repository<>));
                     services.AddScoped<IMessageQueue, MessageQueue>();
-                    services.AddScoped<IShouldStoreStrategy, SecondsEvenShouldStoreStrategy>();
+                    services.AddScoped<IMessageStrategy, MessageStrategy>();
+                    services.AddScoped<ITimeProvider, TimeProvider>();
                 });
     }
 }

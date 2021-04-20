@@ -18,14 +18,14 @@ namespace Consumer
     {
         private readonly IRepository<Message> repository;
         private readonly IMessageQueue queue;
-        private readonly IShouldStoreStrategy storeStrategy;
-        ILogger<ConsumerWorker> _logger;
-        public ConsumerWorker(IMessageQueue queue, IShouldStoreStrategy storeStrategy, IRepository<Message> repository, ILogger<ConsumerWorker> logger)
+        private readonly IMessageStrategy messageStrategy;
+        ILogger<ConsumerWorker> logger;
+        public ConsumerWorker(IMessageQueue queue, IMessageStrategy messageStrategy, IRepository<Message> repository, ILogger<ConsumerWorker> logger)
         {
             this.queue = queue;
-            this.storeStrategy = storeStrategy;
+            this.messageStrategy = messageStrategy;
             this.repository = repository;
-            this._logger = logger;
+            this.logger = logger;
         }
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
@@ -33,15 +33,20 @@ namespace Consumer
             {
                 foreach (var message in queue.GetMessages())
                 {
-                    if (this.storeStrategy.ShouldStore(message)) {
-                        this._logger.LogInformation("Message {0}  satisfy condition", message.DeliveryTag);
-                        this.repository.Add(message);
+                    if (this.messageStrategy.ShouldProcess(message)) {
+                        if (this.messageStrategy.ShouldStore(message))
+                        {
+                            this.logger.LogInformation("Message {0}  satisfy condition", message.DeliveryTag);
+                            this.repository.Add(message);
+                        }
+                        else
+                        {
+                            this.logger.LogInformation("Message {0} does not satisfy condition", message.DeliveryTag);
+                            queue.Publish(message);
+                        }
+                        
                     }
-                    else
-                    {
-                        this._logger.LogInformation("Message {0} does not satisfy condition", message.DeliveryTag);
-                        queue.Publish(message);
-                    }
+                    
                     queue.Remove(message);
                 }
             });
