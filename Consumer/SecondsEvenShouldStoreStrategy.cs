@@ -3,7 +3,7 @@ using Models;
 
 namespace Consumer
 {
-    class SecondsEvenShouldStoreStrategy : IShouldStoreStrategy
+    public class SecondsEvenShouldStoreStrategy : IShouldStoreStrategy
     {
         public Boolean ShouldStore(Message message)
         {
