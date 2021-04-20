@@ -11,30 +11,25 @@ services:
     producer:
         build:
             context: .
-            dockerfile: ./producer/Dockerfile
+            dockerfile: ./Producer/Dockerfile
         depends_on:
             - rabbitmq
         volumes:
-            - ./producer:/opt/producer
+            - ./Producer:/opt/producer
 
     consumer:
         build:
             context: .
-            dockerfile: ./consumer/Dockerfile
+            dockerfile: ./Consumer/Dockerfile
         depends_on:
             - rabbitmq
             - sqlserver
         volumes:
-            - ./consumer:/opt/consumer
+            - ./Consumer:/opt/consumer
 
     sqlserver:
         image: mysql/mysql-server
         ports:
             - 33066:3306
-        environment:
-            MYSQL_ROOT_PASSWORD: root
-            MYSQL_DATABASE: password
-            MYSQL_USER: user
-            MYSQL_PASSWORD: password
 
 
