@@ -3,6 +3,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
+using TransportLayer;
 using SyslogLogger;
 
 namespace producer
@@ -23,7 +24,8 @@ namespace producer
                     .AddSyslog(HOSTNAME, PORT);
                 })
                 .ConfigureServices((_, services) => {
-                    services.AddHostedService<ProducerWorker>();}
-                );
+                    services.AddHostedService<ProducerWorker>();
+                    services.AddScoped<IMessageQueue, MessageQueue>();
+                });
     }
 }
